@@ -157,7 +157,7 @@ set -e
 
 echo "Configure Vim's configuration."
 # LDFLAGS 生成
-LDFLAGS=""
+LD=""
 VimPython2rPath=""
 VimPython3rPath=""
 VimRubyrPath=""
@@ -186,10 +186,10 @@ if "${Ruby}"; then
 fi
 
 if "${InstallFlag}"; then
-	LDFLAGS='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath'"'
+	LD='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath'"'
 fi
 
-$LDFLAGS ./configure \
+$LD ./configure \
 	--prefix=$HOME
     --with-features=huge \
     --enable-fail-if-missing \
