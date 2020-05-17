@@ -2,14 +2,31 @@
 
 cd ~/
 
-PY2=2.7.18
-PY3=3.8.3
-RUBY=2.7.1
-GEOAREA="Asia"
-TIMEZONE="Tokyo"
+# オプション
+readonly Python2=true
+readonly Python3=true
+readonly Ruby=true
+
+# インストールしたいバージョン
+readonly Python2v=2.7.18
+readonly Python3v=3.8.3
+readonly Rubyv=2.7.1
+
+# エリア
+readonly GEOAREA="Asia"
+readonly TIMEZONE="Tokyo"
+
+InstallFlag=false
+if "${Python2}" || "${Python3}" || "${Ruby}"; then
+	InstallFlag=true
+fi
+PythonInstallFlag=false
+if "${Python2}" || "${Python3}"; then
+	PythonInstallFlag=true
+fi
 
 which sudo > /dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
+if [ "$?" -eq 0 ]; then
 	echo "sudo is already installed."
 else
 	echo "Install sudo."
@@ -20,7 +37,7 @@ fi
 sudo apt-get update > /dev/null
 
 dpkg -l | grep tzdata > /dev/null
-if [ "$?" -eq 0 ] ; then
+if [ "$?" -eq 0 ]; then
 	echo "tzdata is already installed."
 else
 	echo "Install tzdata."
@@ -55,79 +72,131 @@ git pull
 
 make distclean > /dev/null
 
-which anyenv > /dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "anyenv is already installed."
-else
-	echo "Install anyenv."
-	git clone https://github.com/anyenv/anyenv ~/.anyenv
-	echo 'export PATH="$HOME/.anyenv/bin:$PATH"' >> ~/.bashrc
-	export PATH="$HOME/.anyenv/bin:$PATH"
-	echo 'eval "$(anyenv init -)"' >> ~/.bash_profile
-	echo 'eval "$(anyenv init -)"' >> ~/.bashrc
-	source ~/.bash_profile
-	source ~/.bashrc
-	anyenv install --force-init
-	echo "Installed anyenv."
+
+
+
+
+if "${InstallFlag}"; then
+	which anyenv > /dev/null 2>&1
+	if [ "$?" -eq 0 ]; then
+		echo "anyenv is already installed."
+	else
+		echo "Install anyenv."
+		git clone https://github.com/anyenv/anyenv ~/.anyenv
+		echo 'export PATH="$HOME/.anyenv/bin:$PATH"' >> ~/.bashrc
+		export PATH="$HOME/.anyenv/bin:$PATH"
+		echo 'eval "$(anyenv init -)"' >> ~/.bash_profile
+		echo 'eval "$(anyenv init -)"' >> ~/.bashrc
+		source ~/.bash_profile
+		source ~/.bashrc
+		anyenv install --force-init
+		echo "Installed anyenv."
+	fi
 fi
 
-which pyenv > /dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "pyenv is already installed."
-else
-	echo "Install pyenv."
-	anyenv install pyenv
-	source ~/.bash_profile
-	source ~/.bashrc
-	echo "Installed pyenv."
+if "${PythonInstallFlag}"; then
+	which pyenv > /dev/null 2>&1
+	if [ "$?" -eq 0 ]; then
+		echo "pyenv is already installed."
+	else
+		echo "Install pyenv."
+		anyenv install pyenv
+		source ~/.bash_profile
+		source ~/.bashrc
+		echo "Installed pyenv."
+	fi
 fi
 
-which rbenv > /dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "rbenv is already installed."
-else
-	echo "Install rbenv."
-	anyenv install rbenv
-	source ~/.bash_profile
-	source ~/.bashrc
-	echo "Installed rbenv."
+if "${Ruby}"; then
+	which rbenv > /dev/null 2>&1
+	if [ "$?" -eq 0 ]; then
+		echo "rbenv is already installed."
+	else
+		echo "Install rbenv."
+		anyenv install rbenv
+		source ~/.bash_profile
+		source ~/.bashrc
+		echo "Installed rbenv."
+	fi
 fi
 
-echo "Install Python2."
-CONFIGURE_OPTS="--enable-shared" pyenv install $PY2
-echo "Installed Python2."
-echo "Install Python3."
-CONFIGURE_OPTS="--enable-shared" pyenv install $PY3
-echo "Installed Python3."
-
-which ruby >/dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "Ruby is already installed."
-else
+if "${Python2}"; then
+	echo "Install Python2."
+	CONFIGURE_OPTS="--enable-shared" pyenv install $Python2v
+	echo "Installed Python2."
+fi
+if "${Python3}"; then
+	echo "Install Python3."
+	CONFIGURE_OPTS="--enable-shared" pyenv install $Python3v
+	echo "Installed Python3."
+fi
+if "${Ruby}"; then
 	echo "Install Ruby."
-	rbenv install $RUBY
+	rbenv install $Rubyv
 	echo "Installed Ruby."
 fi
 
-echo "Set global."
-pyenv global $PY2 $PY3
-rbenv global $RUBY
+if "${InstallFlag}"; then
+	echo "Set global."
+	if "${PythonInstallFlag}"; then
+		pyenv global $Python2v $Python3v
+	fi
+	if "${Python2}"; then
+		pyenv global $Python2v
+	fi
+	if "${Python3}"; then
+		pyenv global $Python3v
+	fi
+	if "${Ruby}"; then
+		rbenv global $Rubyv
+	fi
+fi
 
 set -e
-py2conf=`python -c "import distutils.sysconfig; print distutils.sysconfig.get_config_var('LIBPL')"`
-py3conf=`python3 -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('LIBPL'))"`
 
 echo "Configure Vim's configuration."
-LDFLAGS="-Wl,-rpath=${HOME}/.anyenv/envs/pyenv/versions/$PY2/lib:${HOME}/.anyenv/envs/pyenv/versions/$PY3/lib:${HOME}/.anyenv/envs/rbenv/versions/$RUBY/lib" ./configure \
+# LDFLAGS 生成
+LDFLAGS=""
+VimPython2rPath=""
+VimPython3rPath=""
+VimRubyrPath=""
+VimEnablePython2=""
+VimEnablePython3=""
+VimEnableRuby=""
+
+if "${Python2}"; then
+	VimPython2rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
+	VimEnablePython2="--enable-pythoninterp=dynamic \\"
+	if "${Python3}" || "${Ruby}"; then
+		VimPython2rPath+=":"
+	fi
+fi
+if "${Python3}"; then
+	VimPython3rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
+	VimEnablePython3="--enable-python3interp=dynamic \\"
+	if "${Ruby}"; then
+		VimPython3rPath+=":"
+	fi
+fi
+if "${Ruby}"; then
+	VimRubyrPath="${HOME}/.anyenv/envs/rbenv/versions/$Rubyv/lib"
+	VimEnableRuby="--with-ruby-command=$HOME/.anyenv/envs/rbenv/shims/ruby "
+	VimEnableRuby+="--enable-rubyinterp=dynamic \\"
+fi
+
+if "${InstallFlag}"; then
+	LDFLAGS='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath
+fi
+
+$LDFLAGS ./configure \
     --with-features=huge \
     --enable-fail-if-missing \
     --enable-terminal \
     --enable-luainterp=dynamic \
     --enable-perlinterp=dynamic \
-    --enable-pythoninterp=dynamic \
-    --enable-python3interp=dynamic \
-        --with-ruby-command=$HOME/.anyenv/envs/rbenv/shims/ruby \
-    --enable-rubyinterp=dynamic \
+    $VimEnablePython2
+    $VimEnablePython3
+    $VimEnableRuby
     --enable-tclinterp=dynamic \
     --enable-cscope \
     --enable-multibyte \
@@ -144,5 +213,11 @@ echo "Run make install."
 sudo make install
 echo "Displays the version of Vim."
 vim --version
-echo 'vim -c "python print(sys.version)"'
-echo 'vim -c "python3 print(sys.version)"'
+
+if "${Python2}"; then
+	echo 'vim -c "python print(sys.version)"'
+fi
+
+if "${Python3}"; then
+	echo 'vim -c "python3 print(sys.version)"'
+fi
