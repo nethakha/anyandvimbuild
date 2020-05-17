@@ -5,7 +5,7 @@ cd ~/
 # オプション
 readonly Python2=true
 readonly Python3=true
-readonly Ruby=true
+readonly Ruby=false
 
 # インストールしたいバージョン
 readonly Python2v=2.7.18
@@ -54,7 +54,8 @@ sudo apt-get install -y git make wget gcc \
   libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
   libncursesw5-dev libsqlite3-dev libssl-dev \
   zlib1g-dev uuid-dev tk-dev \
-  lua5.3 liblua5.3-dev perl libperl-dev > /dev/null
+  lua5.3 liblua5.3-dev perl libperl-dev \
+  gettext > /dev/null
 
 if [ ! -d ~/build ]; then
     mkdir -p ~/build
@@ -185,10 +186,11 @@ if "${Ruby}"; then
 fi
 
 if "${InstallFlag}"; then
-	LDFLAGS='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath
+	LDFLAGS='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath'"'
 fi
 
 $LDFLAGS ./configure \
+	--prefix=$HOME
     --with-features=huge \
     --enable-fail-if-missing \
     --enable-terminal \
@@ -201,16 +203,19 @@ $LDFLAGS ./configure \
     --enable-cscope \
     --enable-multibyte \
     --enable-fontset \
-    --enable-gui=no \
-    --without-x \
-    --disable-xim \
     --disable-gui \
-    --disable-xsmp
+    --without-x
 
 echo "Run make."
 make
 echo "Run make install."
-sudo make install
+make install
+
+echo "日本語マニュアルを導入します。"
+mkdir -p ~/.vim/pack/vimdoc-ja/start
+git clone https://github.com/vim-jp/vimdoc-ja.git ~/.vim/pack/vimdoc-ja/start
+echo "日本語マニュアルを導入しました。"
+
 echo "Displays the version of Vim."
 vim --version
 
