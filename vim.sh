@@ -8,22 +8,31 @@ RUBY=2.7.1
 GEOAREA="Asia"
 TIMEZONE="Tokyo"
 
-apt update > /dev/null
+which sudo > /dev/null 2>&1
+if [ "$?" -eq 0 ] ; then
+	echo "sudo is already installed."
+else
+	echo "Install sudo."
+	apt install -y sudo > /dev/null
+	echo "Installed sudo."
+fi
+
+sudo apt update > /dev/null
 
 dpkg -l | grep tzdata > /dev/null
 if [ "$?" -eq 0 ] ; then
 	echo "tzdata is already installed."
 else
 	echo "Install tzdata."
-	export DEBIAN_FRONTEND=noninteractive
-	ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
-	apt install -y tzdata > /dev/null
-	dpkg-reconfigure --frontend noninteractive tzdata
+	sudo export DEBIAN_FRONTEND=noninteractive
+	sudo ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
+	sudo apt install -y tzdata > /dev/null
+	sudo dpkg-reconfigure --frontend noninteractive tzdata
 	echo "Installed tzdata."
 fi
 
 echo "Install the required tools and libraries."
-apt install -y sudo git make wget gcc \
+sudo apt install -y git make wget gcc \
   build-essential libbz2-dev libdb-dev \
   libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
   libncursesw5-dev libsqlite3-dev libssl-dev \
@@ -115,7 +124,6 @@ fi
 echo "Set global."
 pyenv global $PY2 $PY3
 rbenv global $RUBY
-
 
 set -e
 py2conf=`python -c "import distutils.sysconfig; print distutils.sysconfig.get_config_var('LIBPL')"`
