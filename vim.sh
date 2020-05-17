@@ -13,11 +13,11 @@ if [ "$?" -eq 0 ] ; then
 	echo "sudo is already installed."
 else
 	echo "Install sudo."
-	apt install -y sudo > /dev/null
+	apt-get install -y sudo > /dev/null
 	echo "Installed sudo."
 fi
 
-sudo apt update > /dev/null
+sudo apt-get update > /dev/null
 
 dpkg -l | grep tzdata > /dev/null
 if [ "$?" -eq 0 ] ; then
@@ -26,13 +26,13 @@ else
 	echo "Install tzdata."
 	sudo export DEBIAN_FRONTEND=noninteractive
 	sudo ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
-	sudo apt install -y tzdata > /dev/null
+	sudo apt-get install -y tzdata > /dev/null
 	sudo dpkg-reconfigure --frontend noninteractive tzdata
 	echo "Installed tzdata."
 fi
 
 echo "Install the required tools and libraries."
-sudo apt install -y git make wget gcc \
+sudo apt-get install -y git make wget gcc \
   build-essential libbz2-dev libdb-dev \
   libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
   libncursesw5-dev libsqlite3-dev libssl-dev \
