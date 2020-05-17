@@ -53,9 +53,9 @@ cd vim
 
 git pull
 
-make distclean
+make distclean > /dev/null
 
-which anyenv >/dev/null 2>&1
+which anyenv > /dev/null 2>&1
 if [ "$?" -eq 0 ] ; then
 	echo "anyenv is already installed."
 else
@@ -71,7 +71,7 @@ else
 	echo "Installed anyenv."
 fi
 
-which pyenv >/dev/null 2>&1
+which pyenv > /dev/null 2>&1
 if [ "$?" -eq 0 ] ; then
 	echo "pyenv is already installed."
 else
@@ -82,7 +82,7 @@ else
 	echo "Installed pyenv."
 fi
 
-which rbenv >/dev/null 2>&1
+which rbenv > /dev/null 2>&1
 if [ "$?" -eq 0 ] ; then
 	echo "rbenv is already installed."
 else
@@ -141,7 +141,7 @@ LDFLAGS="-Wl,-rpath=${HOME}/.anyenv/envs/pyenv/versions/$PY2/lib:${HOME}/.anyenv
 echo "Run make."
 make
 echo "Run make install."
-make install
+sudo make install
 echo "Displays the version of Vim."
 vim --version
 echo 'vim -c "python print(sys.version)"'
