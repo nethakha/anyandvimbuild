@@ -93,24 +93,12 @@ else
 	echo "Installed rbenv."
 fi
 
-
-which python >/dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "Python2 is already installed."
-else
-	echo "Install Python2."
-	CONFIGURE_OPTS="--enable-shared" pyenv install $PY2
-	echo "Installed Python2."
-fi
-
-which python3 >/dev/null 2>&1
-if [ "$?" -eq 0 ] ; then
-	echo "Python3 is already installed."
-else
-	echo "Install Python3."
-	CONFIGURE_OPTS="--enable-shared" pyenv install $PY3
-	echo "Installed Python3."
-fi
+echo "Install Python2."
+CONFIGURE_OPTS="--enable-shared" pyenv install $PY2
+echo "Installed Python2."
+echo "Install Python3."
+CONFIGURE_OPTS="--enable-shared" pyenv install $PY3
+echo "Installed Python3."
 
 which ruby >/dev/null 2>&1
 if [ "$?" -eq 0 ] ; then
