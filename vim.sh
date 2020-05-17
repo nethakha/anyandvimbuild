@@ -166,14 +166,14 @@ VimEnablePython3=""
 VimEnableRuby=""
 
 if "${Python2}"; then
-	VimPython2rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
+	VimPython2rPath="\${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
 	VimEnablePython2="--enable-pythoninterp=dynamic \\"
 	if "${Python3}" || "${Ruby}"; then
 		VimPython2rPath+=":"
 	fi
 fi
 if "${Python3}"; then
-	VimPython3rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
+	VimPython3rPath="\${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
 	VimEnablePython3="--enable-python3interp=dynamic \\"
 	if "${Ruby}"; then
 		VimPython3rPath+=":"
