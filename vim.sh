@@ -17,10 +17,10 @@ readonly GEOAREA="Asia"
 readonly TIMEZONE="Tokyo"
 
 InstallFlag=false
+PythonInstallFlag=false
 if "${Python2}" || "${Python3}" || "${Ruby}"; then
 	InstallFlag=true
 fi
-PythonInstallFlag=false
 if "${Python2}" || "${Python3}"; then
 	PythonInstallFlag=true
 fi
@@ -141,16 +141,15 @@ if "${InstallFlag}"; then
 	echo "Set global."
 	if "${PythonInstallFlag}"; then
 		pyenv global $Python2v $Python3v
-	fi
-	if "${Python2}"; then
+	elif "${Python2}"; then
 		pyenv global $Python2v
-	fi
-	if "${Python3}"; then
+	elif "${Python3}"; then
 		pyenv global $Python3v
-	fi
-	if "${Ruby}"; then
+	elif "${Ruby}"; then
 		rbenv global $Rubyv
 	fi
+	source ~/.bash_profile
+	source ~/.bashrc
 fi
 
 set -e
@@ -166,14 +165,14 @@ VimEnablePython3=""
 VimEnableRuby=""
 
 if "${Python2}"; then
-	VimPython2rPath="\${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
+	VimPython2rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
 	VimEnablePython2="--enable-pythoninterp=dynamic \\"
 	if "${Python3}" || "${Ruby}"; then
 		VimPython2rPath+=":"
 	fi
 fi
 if "${Python3}"; then
-	VimPython3rPath="\${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
+	VimPython3rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
 	VimEnablePython3="--enable-python3interp=dynamic \\"
 	if "${Ruby}"; then
 		VimPython3rPath+=":"
@@ -189,22 +188,24 @@ if "${InstallFlag}"; then
 	LD='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath'"'
 fi
 
-$LD ./configure \
-	--prefix=$HOME
-    --with-features=huge \
-    --enable-fail-if-missing \
-    --enable-terminal \
-    --enable-luainterp=dynamic \
-    --enable-perlinterp=dynamic \
-    $VimEnablePython2
-    $VimEnablePython3
-    $VimEnableRuby
-    --enable-tclinterp=dynamic \
-    --enable-cscope \
-    --enable-multibyte \
-    --enable-fontset \
-    --disable-gui \
-    --without-x
+echo $LD
+
+bash -c '$LD ./configure \
+	--prefix=$HOME \
+	--with-features=huge \
+	--enable-fail-if-missing \
+	--enable-terminal \
+	--enable-luainterp=dynamic \
+	--enable-perlinterp=dynamic \
+	$VimEnablePython2
+	$VimEnablePython3
+	$VimEnableRuby
+	--enable-tclinterp=dynamic \
+	--enable-cscope \
+	--enable-multibyte \
+	--enable-fontset \
+	--disable-gui \
+	--without-x'
 
 echo "Run make."
 make
