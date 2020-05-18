@@ -57,12 +57,12 @@ fi
 
 echo "Install the required tools and libraries."
 sudo apt-get install -y git make wget gcc \
-    build-essential libbz2-dev libdb-dev \
-    libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
-    libncursesw5-dev libsqlite3-dev libssl-dev \
-    zlib1g-dev uuid-dev tk-dev \
-    perl libperl-dev \
-    gettext > /dev/null
+	build-essential libbz2-dev libdb-dev \
+	libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
+	libncursesw5-dev libsqlite3-dev libssl-dev \
+	zlib1g-dev uuid-dev tk-dev \
+	perl libperl-dev \
+	gettext > /dev/null
 
 if [ ! -d ~/build ]; then
     mkdir -p ~/build
