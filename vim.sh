@@ -43,10 +43,11 @@ if [ "$?" -eq 0 ]; then
 	echo "tzdata is already installed."
 else
 	echo "Install tzdata."
-	sudo export DEBIAN_FRONTEND=noninteractive
-	if [ "$?" -eq 1 ]; then
-		echo "You root?"
+	groups | grep sudo
+	if [ "$?" -eq 0 ]; then
 		export DEBIAN_FRONTEND=noninteractive
+	else
+		sudo export DEBIAN_FRONTEND=noninteractive
 	fi
 	sudo ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
 	sudo apt-get install -y tzdata > /dev/null
