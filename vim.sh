@@ -95,13 +95,12 @@ fi
 envInstall() {
 	EnvName=$1
 	EnvFlag=$2
-	eval "$(anyenv init -)"
 	if "${EnvFlag}" && !(type $EnvName > /dev/null 2>&1); then
 		echo $border
 		echo "Install ${EnvName}."
 		anyenv install $EnvName
 		echo "Installed ${EnvName}."
-		. ~/.profile
+		eval "$(anyenv init -)"
 	else
 		echo $border
 		echo "${EnvName} is already installed."
