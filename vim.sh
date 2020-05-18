@@ -101,6 +101,7 @@ envInstall() {
 		echo "Install ${EnvName}."
 		anyenv install $EnvName
 		echo "Installed ${EnvName}."
+		. ~/.profile
 	else
 		echo $border
 		echo "${EnvName} is already installed."
