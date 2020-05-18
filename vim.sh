@@ -45,8 +45,10 @@ else
 	echo "Install tzdata."
 	groups | grep root
 	if [ "$?" -eq 0 ]; then
+		echo "root"
 		export DEBIAN_FRONTEND=noninteractive
 	else
+		echo "no root"
 		sudo export DEBIAN_FRONTEND=noninteractive
 	fi
 	sudo ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
