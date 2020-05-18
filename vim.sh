@@ -6,9 +6,9 @@ cd ~/
 
 # オプション
 readonly Lua=true
-readonly Python2=true
-readonly Python3=true
-readonly Ruby=true
+readonly Python2=false
+readonly Python3=false
+readonly Ruby=false
 # インストールしたいバージョン
 readonly Luav=5.3.5
 readonly Python2v=2.7.18
