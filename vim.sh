@@ -43,9 +43,9 @@ if [ "$?" -eq 0 ]; then
 	echo "tzdata is already installed."
 else
 	echo "Install tzdata."
-	groups | grep root
+	groups | grep root > /dev/null
 	if [ "$?" -eq 0 ]; then
-		echo "root"
+		echo "you root"
 		export DEBIAN_FRONTEND=noninteractive
 	else
 		echo "no root"
