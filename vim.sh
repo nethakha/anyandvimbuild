@@ -22,6 +22,7 @@ PythonInstallFlag=false
 if "${Python2}" || "${Python3}" || "${Ruby}"; then
 	InstallFlag=true
 fi
+
 if "${Python2}" || "${Python3}"; then
 	PythonInstallFlag=true
 fi
@@ -54,7 +55,7 @@ sudo apt-get install -y git make wget gcc \
     libreadline-dev libffi-dev libgdbm-dev liblzma-dev \
     libncursesw5-dev libsqlite3-dev libssl-dev \
     zlib1g-dev uuid-dev tk-dev \
-    lua5.3 liblua5.3-dev luajit perl libperl-dev \
+    perl libperl-dev \
     gettext > /dev/null
 
 if [ ! -d ~/build ]; then
@@ -65,19 +66,19 @@ if [ ! -d ~/build/vim ]; then
     git clone --depth 1 https://github.com/vim/vim.git
 fi
 cd vim
+
 git pull > /dev/null
 make distclean > /dev/null
+
+export PATH=$HOME/.anyenv/bin:$PATH
 
 if "${InstallFlag}" && !(type anyenv > /dev/null 2>&1); then
 	echo $border
 	echo "Install anyenv."
 	git clone https://github.com/anyenv/anyenv ~/.anyenv
 	echo 'export PATH="$HOME/.anyenv/bin:$PATH"' >> ~/.bashrc
-	export PATH="$HOME/.anyenv/bin:$PATH"
-	echo 'eval "$(anyenv init -)"' >> ~/.bash_profile
 	echo 'eval "$(anyenv init -)"' >> ~/.bashrc
-	source ~/.bash_profile
-	source ~/.bashrc
+	eval "$(anyenv init -)"
 	anyenv install --force-init
 	echo "Installed anyenv."
 else
@@ -85,83 +86,45 @@ else
 	echo "anyenv is already installed."
 fi
 
-if "${PythonInstallFlag}" && !(type pyenv > /dev/null 2>&1); then
-	echo $border
-	echo "Install pyenv."
-	anyenv install pyenv
-	source ~/.bash_profile
-	source ~/.bashrc
-	echo "Installed pyenv."
-else
-	echo $border
-	echo "pyenv is already installed."
-fi
+envInstall() {
+	EnvName=$1
+	EnvFlag=$2
+	eval "$(anyenv init -)"
+	if "${EnvFlag}" && !(type $EnvName > /dev/null 2>&1); then
+		echo $border
+		echo "Install ${EnvName}."
+		anyenv install $EnvName
+		echo "Installed ${EnvName}."
+	else
+		echo $border
+		echo "${EnvName} is already installed."
+	fi
+}
 
+envInstall "pyenv" $PythonInstallFlag
+envInstall "rbenv" $Ruby
+envInstall "luaenv" $Lua
 
-if "${Ruby}" && !(type rbenv > /dev/null 2>&1); then
-	echo $border
-	echo "Install rbenv."
-	anyenv install rbenv
-	source ~/.bash_profile
-	source ~/.bashrc
-	echo "Installed rbenv."
-else
-	echo $border
-	echo "rbenv is already installed."
-fi
+langInstall() {
+	EnvName=$1
+	LangName=$2
+	LangFlag=$3
+	LangVersion=$4
+	if "${LangFlag}" && [ ! -d $HOME/.anyenv/envs/$EnvName/versions/$LangVersion ]; then
+		echo $border
+		echo "Install ${LangName}."
+		CONFIGURE_OPTS="--enable-shared" $EnvName install $LangVersion
+		echo "Installed ${LangName}."
+	else
+		echo $border
+		echo "${LangName} is already installed."
+	fi
+}
 
-
-if "${Lua}" && !(type luaenv > /dev/null 2>&1); then
-	echo $border
-	echo "Install luaenv."
-	anyenv install luaenv
-	source ~/.bash_profile
-	source ~/.bashrc
-	echo "Installed luaenv."
-else
-	echo $border
-	echo "luaenv is already installed."
-fi
-
-if "${Lua}" && [ ! -d $HOME/.anyenv/envs/luaenv/versions/$Luav ]; then
-	echo $border
-	echo "Install Lua."
-	CONFIGURE_OPTS="--enable-shared" luaenv install $Luav
-	echo "Installed Lua."
-else
-	echo $border
-	echo "Lua is already installed."
-fi
-
-if "${Python2}" && [ ! -d $HOME/.anyenv/envs/pyenv/versions/$Python2v ]; then
-	echo $border
-	echo "Install Python2."
-	CONFIGURE_OPTS="--enable-shared" pyenv install $Python2v
-	echo "Installed Python2."
-else
-	echo $border
-	echo "Python2 is already installed."
-fi
-
-if "${Python3}" && [ ! -d $HOME/.anyenv/envs/pyenv/versions/$Python3v ]; then
-	echo $border
-	echo "Install Python3."
-	CONFIGURE_OPTS="--enable-shared" pyenv install $Python3v
-	echo "Installed Python3."
-else
-	echo $border
-	echo "Python3 is already installed."
-fi
-
-if "${Ruby}" && [ ! -d $HOME/.anyenv/envs/rbenv/versions/$Rubyv ]; then
-	echo $border
-	echo "Install Ruby."
-	rbenv install $Rubyv
-	echo "Installed Ruby."
-else
-	echo $border
-	echo "Ruby is already installed."
-fi
+langInstall "pyenv" "Python2" $Python2 $Python2v
+langInstall "pyenv" "Python3" $Python3 $Python3v
+langInstall "rbenv" "Ruby" $Ruby $Rubyv
+langInstall "luaenv" "Lua" $Lua $Luav
 
 if "${InstallFlag}"; then
 	echo $border
@@ -181,8 +144,6 @@ if "${InstallFlag}"; then
 	if "${Lua}"; then
 		luaenv global $Luav
 	fi
-	source ~/.bash_profile
-	source ~/.bashrc
 fi
 
 set -e
@@ -192,12 +153,7 @@ echo "Configure Vim's configuration."
 # LDFLAGS 生成
 LD=""
 VimPython2rPath=""
-VimPython3rPath=""
-VimRubyrPath=""
 VimEnablePython2=""
-VimEnablePython3=""
-VimEnableRuby=""
-
 if "${Python2}"; then
 	VimPython2rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python2v/lib"
 	VimEnablePython2="--enable-pythoninterp=dynamic"
@@ -206,6 +162,8 @@ if "${Python2}"; then
 	fi
 fi
 
+VimPython3rPath=""
+VimEnablePython3=""
 if "${Python3}"; then
 	VimPython3rPath="${HOME}/.anyenv/envs/pyenv/versions/$Python3v/lib"
 	VimEnablePython3="--enable-python3interp=dynamic"
@@ -214,25 +172,33 @@ if "${Python3}"; then
 	fi
 fi
 
+VimRubyrPath=""
+VimEnableRuby=""
 if "${Ruby}"; then
 	VimRubyrPath="${HOME}/.anyenv/envs/rbenv/versions/$Rubyv/lib"
 	VimEnableRuby="--with-ruby-command=$HOME/.anyenv/envs/rbenv/shims/ruby "
 	VimEnableRuby+="--enable-rubyinterp=dynamic"
 fi
 
+VimLuarPath=""
+VimEnableLua=""
+if "${Lua}"; then
+	VimLuarPath="${HOME}/.anyenv/envs/rbenv/versions/$Luav/lib"
+	VimEnableLua="--with-lua-prefix=${HOME}/.anyenv/envs/luaenv/versions/$Luav "
+	VimEnableLua+="--enable-luainterp"
+fi
+
 if "${InstallFlag}"; then
 	LD='LDFLAGS="-Wl,-rpath='$VimPython2rPath$VimPython3rPath$VimRubyrPath'"'
 fi
 
-CONF=" ${LD}:${HOME}/.anyenv/envs/luaenv/versions/5.3.5/lib ./configure
-	--prefix=$HOME
+CONF=" ${LD} ./configure
+	--prefix=$HOME/.local
 	--with-features=huge
 	--enable-fail-if-missing
 	--enable-terminal
-	--enable-tclinterp
-	--with-lua-prefix=${HOME}/.anyenv/envs/luaenv/versions/5.3.5
-	--enable-luainterp
 	--enable-perlinterp
+	${VimEnableLua}
 	${VimEnablePython2}
 	${VimEnablePython3}
 	${VimEnableRuby}
@@ -242,24 +208,33 @@ CONF=" ${LD}:${HOME}/.anyenv/envs/luaenv/versions/5.3.5/lib ./configure
     --enable-xim
     --enable-gui=no
 "
+make distclean > /dev/null
+
 eval $CONF
 
 echo $border
 echo "Run make."
+
 make
-echo $border
 
-
-
-echo "Run make install."
 make install
-echo $border
-echo "日本語マニュアルを導入します。"
 
 
-mkdir -p ~/.vim/pack/vimdoc-ja/start
-git clone https://github.com/vim-jp/vimdoc-ja.git ~/.vim/pack/vimdoc-ja/start
-echo "日本語マニュアルを導入しました。"
+if [ ! -d $HOME/.vim/pack/vimdoc-ja/start ]; then
+	echo $border
+	echo "日本語マニュアルを導入します。"
+	mkdir -p ~/.vim/pack/vimdoc-ja/start
+	git clone https://github.com/vim-jp/vimdoc-ja.git ~/.vim/pack/vimdoc-ja/start
+	echo "日本語マニュアルを導入しました。"
+fi
+
+export PATH=$HOME/.local/bin:$PATH
+
+# PATHが通っていない場合
+if !(type vim > /dev/null 2>&1); then
+	echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+	export PATH=$HOME/.local/bin:$PATH
+fi
 
 echo "Displays the version of Vim."
 vim --version
@@ -271,5 +246,5 @@ fi
 if "${Python3}"; then
 	echo 'vim -c "python3 print(sys.version)"'
 fi
-<< COMMENTOUT
-COMMENTOUT
+
+exec $SHELL -l
