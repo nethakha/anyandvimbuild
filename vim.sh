@@ -43,7 +43,7 @@ if [ "$?" -eq 0 ]; then
 	echo "tzdata is already installed."
 else
 	echo "Install tzdata."
-	groups | grep sudo
+	groups | grep root
 	if [ "$?" -eq 0 ]; then
 		export DEBIAN_FRONTEND=noninteractive
 	else
