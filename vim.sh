@@ -4,7 +4,6 @@ cd ~/
 
 # コミットへたくその戒め
 
-readonly border="----------------------------------------"
 # オプション
 readonly Lua=true
 readonly Python2=true
@@ -79,7 +78,6 @@ make distclean > /dev/null
 export PATH=$HOME/.anyenv/bin:$PATH
 
 if "${InstallFlag}" && !(type anyenv > /dev/null 2>&1); then
-	echo $border
 	echo "Install anyenv."
 	git clone https://github.com/anyenv/anyenv ~/.anyenv
 	echo 'export PATH="$HOME/.anyenv/bin:$PATH"' >> ~/.bashrc
@@ -88,7 +86,6 @@ if "${InstallFlag}" && !(type anyenv > /dev/null 2>&1); then
 	anyenv install --force-init
 	echo "Installed anyenv."
 else
-	echo $border
 	echo "anyenv is already installed."
 fi
 
@@ -96,13 +93,11 @@ envInstall() {
 	EnvName=$1
 	EnvFlag=$2
 	if "${EnvFlag}" && !(type $EnvName > /dev/null 2>&1); then
-		echo $border
 		echo "Install ${EnvName}."
 		anyenv install $EnvName
 		echo "Installed ${EnvName}."
 		eval "$(anyenv init -)"
 	else
-		echo $border
 		echo "${EnvName} is already installed."
 	fi
 }
@@ -117,12 +112,10 @@ langInstall() {
 	LangFlag=$3
 	LangVersion=$4
 	if "${LangFlag}" && [ ! -d $HOME/.anyenv/envs/$EnvName/versions/$LangVersion ]; then
-		echo $border
 		echo "Install ${LangName}."
 		CONFIGURE_OPTS="--enable-shared" $EnvName install $LangVersion
 		echo "Installed ${LangName}."
 	else
-		echo $border
 		echo "${LangName} is already installed."
 	fi
 }
@@ -133,7 +126,6 @@ langInstall "rbenv" "Ruby" $Ruby $Rubyv
 langInstall "luaenv" "Lua" $Lua $Luav
 
 if "${InstallFlag}"; then
-	echo $border
 	echo "Set global."
 	if "${PythonInstallFlag}"; then
 		pyenv global $Python2v $Python3v
@@ -154,7 +146,6 @@ fi
 
 set -e
 
-echo $border
 echo "Configure Vim's configuration."
 # LDFLAGS 生成
 LD=""
@@ -220,7 +211,6 @@ make distclean > /dev/null
 
 eval $CONF
 
-echo $border
 echo "Run make."
 
 make
@@ -229,7 +219,6 @@ make install
 
 
 if [ ! -d $HOME/.vim/pack/vimdoc-ja/start ]; then
-	echo $border
 	echo "日本語マニュアルを導入します。"
 	mkdir -p ~/.vim/pack/vimdoc-ja/start
 	git clone https://github.com/vim-jp/vimdoc-ja.git ~/.vim/pack/vimdoc-ja/start
