@@ -1,0 +1,3 @@
+# anyandvimbuild
+
+anyenvを活用してvimをビルドするUbuntu20.04のためのスクリプト
