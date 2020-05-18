@@ -43,6 +43,10 @@ if [ "$?" -eq 0 ]; then
 else
 	echo "Install tzdata."
 	sudo export DEBIAN_FRONTEND=noninteractive
+	if [ "$?" -eq 1 ]; then
+		echo "You root?"
+		export DEBIAN_FRONTEND=noninteractive
+	fi
 	sudo ln -fs /usr/share/zoneinfo/$GEOAREA/$TIMEZONE /etc/localtime
 	sudo apt-get install -y tzdata > /dev/null
 	sudo dpkg-reconfigure --frontend noninteractive tzdata
@@ -209,6 +213,8 @@ CONF=" ${LD} ./configure
     --enable-gui=no
 "
 make distclean > /dev/null
+
+. ~/.profile
 
 eval $CONF
 
