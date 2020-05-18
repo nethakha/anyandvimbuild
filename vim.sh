@@ -95,7 +95,7 @@ envInstall() {
 	EnvFlag=$2
 	if "${EnvFlag}" && !(type $EnvName > /dev/null 2>&1); then
 		echo "Install ${EnvName}."
-		anyenv install $EnvName
+		anyenv install $EnvName > /dev/null
 		echo "Installed ${EnvName}."
 		eval "$(anyenv init -)"
 	else
